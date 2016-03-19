@@ -66,7 +66,7 @@ Median is 10400 steps, mean - 9354 steps and max - 21,190, min - 0.
 
 ## What is the average daily activity pattern?
 
-#time series plot of average number of steps taken
+First create a time series plot of average number of steps taken
 ```{r echo=TRUE}
 plot(ts(proc_data[["avg_steps_per_day"]]), col = "red", xlab = "Time series plot", ylab = "Total steps per day")
 axis(2,labels = T)
@@ -163,7 +163,7 @@ legend(x= "topright", legend = c("Week Day","Week End"), lwd = c(2.5,2.5), col =
 
 Now for creating panel plots...
 
-```{r echo=TRUE
+```{r echo=TRUE}
 #First summarise 
 NAFilledAgg <- NAfilled %>% group_by(weekday, interval) %>% summarise (avg_Steps = mean(steps))
 
