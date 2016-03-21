@@ -14,7 +14,8 @@ Then define date variable to be R as.date.
 rm(list=ls())
 library(dplyr)
 library(ggplot2)
-setwd("D:\\Google Drive\\Courseera materials\\Reproducible Research\\Week 1 Project")
+setwd("C:\\Users\\rams.m\\Google Drive\\Courseera materials\\Reproducible Research\\Week 1 Project")
+
 raw_data <- read.csv("activity.csv", header = T, na.strings = "NA")
 
 #Convert date column, currently factor, to date.
@@ -55,8 +56,9 @@ rug(proc_data$tot_steps_per_day)
 abline(v = 10400, lwd = 2.5)
 abline(v = 9354, lwd = 1.5, col = "red")
 ```
+
 Clearly 0 number of steps seem to be high in number and is skewing
-the graph. Do a descriptive of this
+the graph. Do a descriptive of this data.
 
 
 ```{r echo=TRUE}
@@ -66,19 +68,19 @@ Median is 10400 steps, mean - 9354 steps and max - 21,190, min - 0.
 
 ## What is the average daily activity pattern?
 
-First create a time series plot of average number of steps taken
+First creating a time series plot of average number of steps taken
 ```{r echo=TRUE}
 plot(ts(proc_data[["avg_steps_per_day"]]), col = "red", xlab = "Time series plot", ylab = "Total steps per day")
 axis(2,labels = T)
 ```
-Find average number of steps for each 5 minute interval
-Need to group by interval for this and then calculate avg. steps.
-using dplyr for this and creating a new variable o
+
+Next step is to find average number of steps for each 5 minute interval. Need to group by interval for this and then calculate avg. steps. using *dplyr* for this and creating a new variable *o*
 ```{r echo=TRUE}
 o <- raw_data %>% group_by(interval) %>% summarise(avg_steps = mean(steps, na.rm = T)) 
 ```
 
 Having found average for each 5 min interval, find which 5 minute interval contains max. number of steps and print first element that contains max. steps
+
 ```{r echo=TRUE}
 o <- o[order(-o$avg_steps),]
 o[1,1]
@@ -102,7 +104,8 @@ Now using this for filling missing rows in original data set and in the process 
 h <- function(x) { proc_data$avg_steps_per_day[proc_data$date == x] }
 ```
 
-Creating a new dataset with missing values filled
+Creating a new dataset with missing values filled.
+
 ```{r echo=TRUE}
 NAfilled <- raw_data
 #The actual imputation being done here
@@ -115,26 +118,30 @@ for (i in 1: length(NAfilled$steps))
 ```
 
 Now do a histogram of total steps in imputed data...
+
 ```{r echo=TRUE}
 hist(NAfilled$steps, col = 'green')
 ```
 
 And compute a descriptive for imputed data...
+
 ```{r echo=TRUE}
 summary(NAfilled$steps)
 ```
 
-Comparing with missing data descriptive, imputed data mean value remains same. Only third quartile value has changed.
+Comparing with missing data descriptive, imputed data mean value remains same. Only third quartile value has changed. Reason is because the imputed value is based on the mean value per day.
 
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
-creating a days of week factor in the following process.
+
+This requires creating a days of week factor in the following process as a first step.
+
 ```{r echo=TRUE}
 days_of_week <- weekdays(NAfilled$date, abbreviate = T)
 ```
 
-create a factor variable for weekday, weekend using the above variable.
+Now create a factor variable for weekday, weekend using the above variable.
 
 ```{r echo=TRUE}
 NAfilled$weekday <- as.character("Weekday","Weekend")
@@ -142,13 +149,15 @@ NAfilled$weekday[grepl("Sat|Sun", days_of_week, ignore.case = T)] <- "Weekend"
 NAfilled$weekday <- as.factor(NAfilled$weekday)
 ```
 
-Then we need to filter weekday and weekend Number of steps 
+Then we need to filter weekday and weekend Number of steps...
+
 ```{r echo=TRUE}
 WkDaySteps <- NAfilled$steps[NAfilled$weekday =="Weekday"]
 WkEndSteps <- NAfilled$steps[NAfilled$weekday == "Weekend"]
 ```
 
 Now doing a histogram plot of the steps
+
 ```{r echo=TRUE}
 with(NAfilled, hist(WkDaySteps,main = paste("Histogram of Steps in 5 Min interval"), xlab = "nth 5 Min interval",col = "blue"))
 rug(WkDaySteps, col = "blue")
@@ -167,10 +176,13 @@ Now for creating panel plots...
 #First summarise 
 NAFilledAgg <- NAfilled %>% group_by(weekday, interval) %>% summarise (avg_Steps = mean(steps))
 
+#Then store the graphic layer in a variable called 'ggp'.
 ggp <- ggplot(NAFilledAgg, aes(interval, avg_Steps)) + theme_bw() + geom_line(col = "red") + facet_grid(weekday ~ .) + labs(x = "Nth 5 Minute Interval", y = "Average Number of Steps Taken")
+
+#Now output to device
 print(ggp)
 
 ```
 
-
+This marks the end of document.
 
